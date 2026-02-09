@@ -69,12 +69,20 @@ const App: React.FC = () => {
     });
 
    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-  setSession(session);
-  if (session) setStatus(GameStatus.SETUP);
-  else setStatus(GameStatus.AUTH);
+     setSession(session);
+    if (session) {
+      setStatus(GameStatus.SETUP);
+    } else {
+      setStatus(GameStatus.AUTH);
 
-  setLoading(false); // ✅ clave: evitar “se queda pensando”
-});
+      // 🧹 limpieza defensiva
+      setLoginUser("");
+      setLoginPass("");
+      setLoginError(null);
+    }
+
+    setLoading(false);
+  });
 
     return () => subscription.unsubscribe();
   }, []);
