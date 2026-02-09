@@ -53,11 +53,19 @@ const App: React.FC = () => {
   const [dictPage, setDictPage] = useState(0);
 
   // Check initial session
-  useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
+ useEffect(() => {
+  if (!isSupabaseConfigured) return;
+
+  supabase.auth.getSession().then(({ data }) => {
+    setSession(data.session ?? null);
+  });
+
+  const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
+    setSession(newSession);
+  });
+
+  return () => sub.subscription.unsubscribe();
+}, []);
 
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
@@ -223,6 +231,23 @@ const App: React.FC = () => {
     }
   };
 
+    const saveGameSession = async (forcedEnd: boolean) => {
+  if (!isSupabaseConfigured) return;
+  const userId = session?.user?.id;
+  if (!userId) return;
+
+  const payload = {
+    user_id: userId,
+    difficulty,
+    num_players: players.length,
+    players,              // guarda el array completo con score/time/nombre
+    forced_end: forcedEnd,
+  };
+
+  const { error } = await supabase.from("game_sessions").insert(payload);
+  if (error) console.error("Error saving session:", error.message);
+};
+    
   const finishPlayerTurn = () => {
     const endTime = Date.now();
     const realSeconds = (endTime - turnStartTimeRef.current) / 1000;
@@ -232,13 +257,15 @@ const App: React.FC = () => {
       setCurrentPlayerIndex(prev => prev + 1);
       setStatus(GameStatus.INTERMISSION);
     } else {
-      setStatus(GameStatus.SUMMARY);
-    }
+  saveGameSession(false);
+  setStatus(GameStatus.SUMMARY);
+}
   };
 
-  const forceFinishGame = () => {
-    setStatus(GameStatus.SUMMARY);
-  };
+const forceFinishGame = () => {
+  saveGameSession(true);
+  setStatus(GameStatus.SUMMARY);
+};
 
   const dictGroups = useMemo(() => {
     const source = LEVEL_DATA[dictLevel];
