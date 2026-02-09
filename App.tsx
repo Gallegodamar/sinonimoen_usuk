@@ -126,14 +126,22 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
-  setLoading(true);
+    setLoading(true);
+
   try {
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
     }
-    // Fuerza UI inmediata aunque el evento tarde
+
+    // 🔥 reset de sesión y estado
     setSession(null);
     setStatus(GameStatus.AUTH);
+
+    // 🔥 reset de formulario de login
+    setLoginUser("");
+    setLoginPass("");
+    setLoginError(null);
+
   } finally {
     setLoading(false);
   }
