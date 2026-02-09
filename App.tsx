@@ -68,11 +68,13 @@ const App: React.FC = () => {
       setLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
-      if (session) setStatus(GameStatus.SETUP);
-      else setStatus(GameStatus.AUTH);
-    });
+   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+  setSession(session);
+  if (session) setStatus(GameStatus.SETUP);
+  else setStatus(GameStatus.AUTH);
+
+  setLoading(false); // ✅ clave: evitar “se queda pensando”
+});
 
     return () => subscription.unsubscribe();
   }, []);
@@ -103,7 +105,8 @@ const App: React.FC = () => {
     }
 
     // Transform user to email for Supabase: alumno-0001 -> alumno-0001@tuapp.local
-    const email = loginUser.includes('@') ? loginUser : `${loginUser}@tuapp.local`;
+    const clean = loginUser.trim().toLowerCase().replace(/\s+/g, "-");
+    const email = clean.includes("@") ? clean : `${clean}@tuapp.local`;
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -123,12 +126,18 @@ const App: React.FC = () => {
   };
 
   const handleLogout = async () => {
+  setLoading(true);
+  try {
     if (isSupabaseConfigured) {
       await supabase.auth.signOut();
-    } else {
-      setStatus(GameStatus.AUTH);
     }
-  };
+    // Fuerza UI inmediata aunque el evento tarde
+    setSession(null);
+    setStatus(GameStatus.AUTH);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const generatePool = (needed: number, level: DifficultyLevel) => {
     const poolSource = LEVEL_DATA[level];
