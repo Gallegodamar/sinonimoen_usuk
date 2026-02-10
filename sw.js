@@ -1,11 +1,11 @@
 
-const CACHE_NAME = 'sinonimoak-v2';
+const CACHE_NAME = 'sinonimoak-v3';
 const ASSETS_TO_CACHE = [
+  './',
   './index.html',
   './manifest.json'
 ];
 
-// Instalación: Cachear solo lo esencial para que la PWA sea válida
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -27,16 +27,13 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Estrategia: Red primero, si falla, buscar en cache. 
-// Esto es más seguro para entornos de desarrollo y evita el error 404.
 self.addEventListener('fetch', (event) => {
-  // Solo manejar peticiones GET
   if (event.request.method !== 'GET') return;
 
   event.respondWith(
     fetch(event.request)
       .catch(() => {
-        return caches.match(event.request);
+        return caches.match(event.request) || caches.match('./');
       })
   );
 });
