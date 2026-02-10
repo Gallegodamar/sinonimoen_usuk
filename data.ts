@@ -1,4 +1,3 @@
-
 import { WordData, DifficultyLevel } from './types';
 import { LEVEL_1_PART_1 } from './data_l1_1';
 import { LEVEL_1_PART_2 } from './data_l1_2';
@@ -50,6 +49,7 @@ export const LEVEL_DATA: Record<DifficultyLevel, WordData[]> = {
   4: LEVEL_4_DATA
 };
 
+// Re-exportamos para compatibilidad si fuera necesario
 export { 
   LEVEL_1_PART_1, LEVEL_1_PART_2, LEVEL_1_PART_3, 
   LEVEL_2_PART_1, LEVEL_2_PART_2, LEVEL_2_PART_3,

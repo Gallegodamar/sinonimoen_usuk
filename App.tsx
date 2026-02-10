@@ -2,10 +2,8 @@
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { LEVEL_DATA } from './data';
 import { WordData, Player, Question, GameStatus, DifficultyLevel } from './types';
-import { supabase, isSupabaseConfigured } from './supabase';
 
 const QUESTIONS_PER_PLAYER = 10;
-const DICT_PAGE_SIZE = 20;
 
 const shuffleArray = <T,>(array: T[]): T[] => {
   const newArr = [...array];
@@ -25,15 +23,7 @@ const getWordType = (word: string): string => {
 };
 
 const App: React.FC = () => {
-  const [status, setStatus] = useState<GameStatus>(GameStatus.AUTH);
-  const [session, setSession] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  
-  // Login State
-  const [loginUser, setLoginUser] = useState('');
-  const [loginPass, setLoginPass] = useState('');
-  const [authError, setAuthError] = useState<string | null>(null);
-
+  const [status, setStatus] = useState<GameStatus>(GameStatus.SETUP);
   const [difficulty, setDifficulty] = useState<DifficultyLevel>(1);
   const [numPlayers, setNumPlayers] = useState(2);
   const [players, setPlayers] = useState<Player[]>([]);
@@ -48,53 +38,6 @@ const App: React.FC = () => {
   const [currentTurnPenalties, setCurrentTurnPenalties] = useState(0);
   const turnStartTimeRef = useRef<number>(0);
 
-  // Dictionary pagination/filtering
-  const [dictLevel, setDictLevel] = useState<DifficultyLevel>(1);
-  const [dictPage, setDictPage] = useState(0);
-
-  // Check initial session
- useEffect(() => {
-  if (!isSupabaseConfigured) return;
-
-  supabase.auth.getSession().then(({ data }) => {
-    setSession(data.session ?? null);
-  });
-
-  const { data: sub } = supabase.auth.onAuthStateChange((_event, newSession) => {
-    setSession(newSession);
-  });
-
-  return () => sub.subscription.unsubscribe();
-}, []);
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (session) setStatus(GameStatus.SETUP);
-      setLoading(false);
-    }).catch(err => {
-      console.error("Supabase session error:", err);
-      setLoading(false);
-    });
-
-   const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-     setSession(session);
-    if (session) {
-      setStatus(GameStatus.SETUP);
-    } else {
-      setStatus(GameStatus.AUTH);
-
-      // 🧹 limpieza defensiva
-      setLoginUser("");
-      setLoginPass("");
-      setLoginError(null);
-    }
-
-    setLoading(false);
-  });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   // Sync players array when numPlayers changes in SETUP
   useEffect(() => {
     if (status === GameStatus.SETUP) {
@@ -106,62 +49,6 @@ const App: React.FC = () => {
       })));
     }
   }, [numPlayers, status]);
-
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthError(null);
-    setLoading(true);
-
-    if (!isSupabaseConfigured) {
-      // Demo Mode bypass
-      console.warn("Supabase configuration missing. Logging in as guest.");
-      setStatus(GameStatus.SETUP);
-      setLoading(false);
-      return;
-    }
-
-    // Transform user to email for Supabase: alumno-0001 -> alumno-0001@tuapp.local
-    const clean = loginUser.trim().toLowerCase().replace(/\s+/g, "-");
-    const email = clean.includes("@") ? clean : `${clean}@tuapp.local`;
-
-    try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password: loginPass,
-      });
-
-      if (error) {
-        setAuthError('Erabiltzaile edo pasahitz okerra');
-        setLoading(false);
-      }
-    } catch (err) {
-      console.error("Login attempt failed:", err);
-      setAuthError('Zerbitzari errore bat gertatu da');
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    setLoading(true);
-
-  try {
-    if (isSupabaseConfigured) {
-      await supabase.auth.signOut();
-    }
-
-    // 🔥 reset de sesión y estado
-    setSession(null);
-    setStatus(GameStatus.AUTH);
-
-    // 🔥 reset de formulario de login
-    setLoginUser("");
-    setLoginPass("");
-    setLoginError(null);
-
-  } finally {
-    setLoading(false);
-  }
-};
 
   const generatePool = (needed: number, level: DifficultyLevel) => {
     const poolSource = LEVEL_DATA[level];
@@ -231,23 +118,6 @@ const App: React.FC = () => {
     }
   };
 
-    const saveGameSession = async (forcedEnd: boolean) => {
-  if (!isSupabaseConfigured) return;
-  const userId = session?.user?.id;
-  if (!userId) return;
-
-  const payload = {
-    user_id: userId,
-    difficulty,
-    num_players: players.length,
-    players,              // guarda el array completo con score/time/nombre
-    forced_end: forcedEnd,
-  };
-
-  const { error } = await supabase.from("game_sessions").insert(payload);
-  if (error) console.error("Error saving session:", error.message);
-};
-    
   const finishPlayerTurn = () => {
     const endTime = Date.now();
     const realSeconds = (endTime - turnStartTimeRef.current) / 1000;
@@ -257,181 +127,22 @@ const App: React.FC = () => {
       setCurrentPlayerIndex(prev => prev + 1);
       setStatus(GameStatus.INTERMISSION);
     } else {
-  saveGameSession(false);
-  setStatus(GameStatus.SUMMARY);
-}
+      setStatus(GameStatus.SUMMARY);
+    }
   };
 
-const forceFinishGame = () => {
-  saveGameSession(true);
-  setStatus(GameStatus.SUMMARY);
-};
-
-  const dictGroups = useMemo(() => {
-    const source = LEVEL_DATA[dictLevel];
-    const groups = [];
-    for (let i = 0; i < source.length; i += DICT_PAGE_SIZE) {
-      groups.push(source.slice(i, i + DICT_PAGE_SIZE));
-    }
-    return groups;
-  }, [dictLevel]);
+  const forceFinishGame = () => {
+    setStatus(GameStatus.SUMMARY);
+  };
 
   const playedWordData = useMemo(() => {
     return Array.from(new Map<string, WordData>(questionPool.map(q => [q.wordData.hitza, q.wordData])).values())
       .sort((a, b) => a.hitza.localeCompare(b.hitza));
   }, [questionPool]);
 
-  if (loading && status === GameStatus.AUTH) {
-    return (
-      <div className="h-screen flex items-center justify-center bg-indigo-950">
-        <div className="animate-spin rounded-full h-12 w-12 border-4 border-white border-t-transparent"></div>
-      </div>
-    );
-  }
-
-  if (status === GameStatus.AUTH) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-indigo-900 via-slate-900 to-black">
-        <div className="bg-white p-8 md:p-12 rounded-[3rem] shadow-2xl w-full max-w-md border border-white/10 flex flex-col relative overflow-hidden">
-          {!isSupabaseConfigured && (
-            <div className="absolute top-0 left-0 w-full bg-amber-500 text-white text-[9px] font-black text-center py-1 uppercase tracking-[0.2em] z-20">
-              Konektatu gabe (Demo Modua)
-            </div>
-          )}
-          
-          <div className="text-center mb-10">
-            <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl transform -rotate-6">
-              <span className="text-white text-4xl font-black">S</span>
-            </div>
-            <h1 className="text-3xl font-black text-slate-900 uppercase tracking-tight">Saioa hasi</h1>
-            <p className="text-xs font-bold text-slate-400 mt-2 uppercase tracking-widest">
-              {isSupabaseConfigured ? 'Sartu zure datuak jarraitzeko' : 'Sartu probatzeko'}
-            </p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-5">
-            <div>
-              <label className="block text-[10px] font-black text-indigo-900 uppercase mb-2 ml-1">Erabiltzailea</label>
-              <input 
-                type="text" 
-                required 
-                value={loginUser}
-                onChange={(e) => setLoginUser(e.target.value)}
-                placeholder="Idatzi zure erabiltzailea" 
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-bold text-slate-700"
-              />
-              <p className="mt-1.5 ml-1 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
-                Adibidez: alumno-0001
-              </p>
-            </div>
-            <div>
-              <label className="block text-[10px] font-black text-indigo-900 uppercase mb-2 ml-1">Pasahitza</label>
-              <input 
-                type="password" 
-                required={isSupabaseConfigured}
-                value={loginPass}
-                onChange={(e) => setLoginPass(e.target.value)}
-                placeholder="••••••••" 
-                className="w-full px-5 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all outline-none font-bold text-slate-700"
-              />
-            </div>
-
-            {authError && (
-              <div className="bg-rose-50 text-rose-600 text-xs font-black p-4 rounded-xl border border-rose-100 text-center animate-pulse">
-                {authError}
-              </div>
-            )}
-
-            <button 
-              type="submit" 
-              disabled={loading}
-              className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white font-black py-5 rounded-2xl transition-all shadow-xl active:scale-95 text-lg uppercase tracking-widest mt-4"
-            >
-              {loading ? 'Kargatzen...' : isSupabaseConfigured ? 'SARTU' : 'Hasi Proba'}
-            </button>
-          </form>
-          
-          <p className="mt-8 text-center text-[10px] text-slate-400 font-bold uppercase">
-            Sinonimoen Erronka v2.3
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  if (status === GameStatus.DICTIONARY) {
-    return (
-      <div className="h-screen flex flex-col items-center justify-center p-2 bg-slate-900 overflow-hidden">
-        <div className="bg-white w-full max-w-4xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col max-h-[95vh] border-2 border-white/20">
-          <div className="flex justify-between items-center mb-6 shrink-0">
-            <button onClick={() => setStatus(GameStatus.SETUP)} className="bg-slate-100 hover:bg-slate-200 text-slate-600 px-4 py-2 rounded-xl font-black text-xs uppercase transition-all">
-              ← Atzera
-            </button>
-            <div className="text-center">
-              <h2 className="text-xl md:text-2xl font-black text-indigo-950 uppercase leading-none">Hiztegia</h2>
-              <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase">20ko taldeak</p>
-            </div>
-            <div className="w-16"></div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2 mb-6 shrink-0 bg-slate-50 p-2 rounded-2xl border border-slate-100">
-            {([1, 2, 3, 4] as DifficultyLevel[]).map(d => (
-              <button key={d} onClick={() => { setDictLevel(d); setDictPage(0); }} className={`py-2 rounded-xl font-black text-sm transition-all ${dictLevel === d ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-600'}`}>
-                {d}. Maila
-              </button>
-            ))}
-          </div>
-
-          <div className="grow overflow-y-auto pr-2 custom-scrollbar mb-6 min-h-0">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {dictGroups[dictPage]?.map((word, idx) => (
-                <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-slate-100 hover:border-indigo-200 transition-colors shadow-sm">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="text-[10px] font-black bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-lg uppercase">
-                      #{dictPage * DICT_PAGE_SIZE + idx + 1}
-                    </span>
-                    <a href={`https://hiztegiak.elhuyar.eus/eu/${word.hitza}`} target="_blank" rel="noopener noreferrer" className="text-lg font-black text-slate-800 uppercase tracking-tight hover:underline decoration-indigo-300 underline-offset-2">
-                      {word.hitza}
-                    </a>
-                  </div>
-                  <div className="flex flex-wrap gap-1.5">
-                    {word.sinonimoak.map((s, si) => (
-                      <a key={si} href={`https://hiztegiak.elhuyar.eus/eu/${s}`} target="_blank" rel="noopener noreferrer" className="bg-white text-indigo-600 px-2.5 py-1 rounded-lg border border-indigo-50 font-bold text-xs hover:bg-indigo-600 hover:text-white transition-all shadow-sm">
-                        {s}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="flex justify-between items-center bg-slate-50 p-4 rounded-2xl border border-slate-100 shrink-0">
-            <button disabled={dictPage === 0} onClick={() => setDictPage(p => p - 1)} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed bg-white rounded-xl shadow-sm">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M15 19l-7-7 7-7" /></svg>
-            </button>
-            <div className="text-center">
-              <p className="text-[10px] font-black text-slate-400 uppercase leading-none mb-1">Taldea</p>
-              <p className="text-indigo-600 font-black text-sm">{dictPage + 1} / {Math.max(1, dictGroups.length)}</p>
-            </div>
-            <button disabled={dictPage >= dictGroups.length - 1} onClick={() => setDictPage(p => p + 1)} className="p-2 disabled:opacity-30 disabled:cursor-not-allowed bg-white rounded-xl shadow-sm">
-              <svg className="w-6 h-6 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M9 5l7 7-7 7" /></svg>
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   if (status === GameStatus.SETUP) {
     return (
-      <div className="h-screen flex flex-col items-center justify-center p-2 bg-gradient-to-br from-indigo-800 via-indigo-950 to-black overflow-hidden relative">
-        <button 
-          onClick={handleLogout}
-          className="absolute top-4 right-4 bg-white/10 hover:bg-white/20 text-white/70 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all"
-        >
-          Saioa itxi
-        </button>
+      <div className="h-screen flex flex-col items-center justify-center p-2 bg-gradient-to-br from-indigo-800 via-indigo-950 to-black overflow-hidden">
         <div className="bg-white p-6 md:p-8 rounded-[2.5rem] shadow-2xl w-full max-w-2xl flex flex-col max-h-[95vh] border-2 border-white/20">
           <div className="text-center mb-6 shrink-0">
             <h1 className="text-3xl md:text-4xl font-black text-indigo-950 tracking-tighter uppercase leading-none">Sinonimoen Erronka</h1>
@@ -465,7 +176,6 @@ const forceFinishGame = () => {
           </div>
           <div className="flex flex-col gap-3 shrink-0">
             <button onClick={startNewGame} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-5 rounded-2xl transition-all shadow-xl active:scale-95 text-xl uppercase tracking-widest">HASI JOKOA</button>
-            <button onClick={() => setStatus(GameStatus.DICTIONARY)} className="w-full bg-slate-100 hover:bg-slate-200 text-indigo-600 font-black py-4 rounded-2xl transition-all text-sm uppercase tracking-widest border border-slate-200">IKUSI SINONIMOAK</button>
           </div>
         </div>
       </div>

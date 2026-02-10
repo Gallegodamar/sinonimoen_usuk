@@ -1,5 +1,5 @@
 {
-  "name": "sinonimoen_usuk",
+  "name": "sinonimoen-erronka",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -10,8 +10,7 @@
   },
   "dependencies": {
     "react-dom": "^19.2.3",
-    "react": "^19.2.3",
-    "@supabase/supabase-js": "^2.45.0"
+    "react": "^19.2.3"
   },
   "devDependencies": {
     "@types/node": "^22.14.0",

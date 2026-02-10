@@ -21,11 +21,9 @@ export interface Question {
 export type DifficultyLevel = 1 | 2 | 3 | 4;
 
 export enum GameStatus {
-  AUTH = 'AUTH',
   SETUP = 'SETUP',
   INTERMISSION = 'INTERMISSION',
   PLAYING = 'PLAYING',
   SUMMARY = 'SUMMARY',
-  DICTIONARY = 'DICTIONARY',
   REVIEW = 'REVIEW'
 }

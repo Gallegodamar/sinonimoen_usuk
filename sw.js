@@ -1,15 +1,20 @@
 
-const CACHE_NAME = 'erronka-v1';
+const CACHE_NAME = 'sinonimoak-v1';
 const ASSETS = [
   './',
   './index.html',
-  './manifest.json',
+  './index.tsx',
+  './App.tsx',
+  './data.ts',
+  './types.ts',
   'https://cdn.tailwindcss.com'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
 });
 
