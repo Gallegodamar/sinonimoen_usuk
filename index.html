@@ -13,8 +13,7 @@
     <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%234f46e5%22/><text y=%2275%22 x=%2250%22 font-size=%2265%22 font-family=%22system-ui, sans-serif%22 font-weight=%22900%22 fill=%22white%22 text-anchor=%22middle%22>S</text></svg>">
 
     <title>Sinonimoen Erronka</title>
-    <!-- Versionado del manifest para forzar recarga en iPhone -->
-    <link rel="manifest" href="manifest.json?v=5" />
+    <link rel="manifest" href="manifest.json" />
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22%234f46e5%22/><path d=%22M30 40h40M30 55h25%22 stroke=%22white%22 stroke-width=%228%22 stroke-linecap=%22round%22 opacity=%220.5%22/><text y=%2275%22 x=%2250%22 font-size=%2265%22 font-family=%22system-ui, sans-serif%22 font-weight=%22900%22 fill=%22white%22 text-anchor=%22middle%22>S</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -40,9 +39,6 @@
         background: #e2e8f0;
         border-radius: 10px;
       }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #cbd5e1;
-      }
       input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
         height: 20px;
@@ -50,18 +46,8 @@
         border-radius: 50%;
         background: #4f46e5;
         cursor: pointer;
-        box-shadow: 0 0 2px rgba(0,0,0,0.5);
       }
     </style>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(reg => console.log('SW registered'))
-            .catch(err => console.log('SW registration failed:', err));
-        });
-      }
-    </script>
     <script type="importmap">
     {
       "imports": {
@@ -70,6 +56,17 @@
         "react": "https://esm.sh/react@^19.2.3"
       }
     }
+    </script>
+    <!-- Entrada principal de la aplicación -->
+    <script type="module" src="index.tsx"></script>
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(reg => console.log('SW OK'))
+            .catch(err => console.log('SW Error', err));
+        });
+      }
     </script>
   </head>
   <body>

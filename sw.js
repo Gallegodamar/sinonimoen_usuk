@@ -1,33 +1,31 @@
 
-const CACHE_NAME = 'sinonimoak-v5';
-const ASSETS_TO_CACHE = [
+const CACHE_NAME = 'sinonimoak-v10';
+const ASSETS = [
+  '/',
   'index.html',
   'manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
   );
-  self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(
-      keys.map((key) => {
-        if (key !== CACHE_NAME) return caches.delete(key);
-      })
+      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
     ))
   );
-  self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
-  // Solo interceptar peticiones GET a recursos locales
   if (event.request.method !== 'GET') return;
-
+  
+  // Estrategia: Intentar red, si falla usar caché.
   event.respondWith(
-    fetch(event.request).catch(() => caches.match(event.request))
+    fetch(event.request)
+      .catch(() => caches.match(event.request) || caches.match('/'))
   );
 });
