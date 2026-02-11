@@ -202,8 +202,8 @@ const App: React.FC = () => {
 
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center bg-slate-100 overflow-hidden safe-pt safe-pb safe-px">
-        {/* Cabecera compacta: El botón Amaitu estará accesible y visible */}
-        <div className="w-full max-w-2xl flex justify-between items-center mb-4 gap-2 shrink-0 px-2">
+        {/* Cabecera compacta */}
+        <div className="w-full max-w-2xl flex justify-between items-center mb-3 gap-2 shrink-0 px-2">
           <div className="flex items-center space-x-2">
              <div className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[11px] font-black shadow-md uppercase">{currentPlayer.name}</div>
              <div className="bg-white px-2 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 shadow-sm">
@@ -218,20 +218,21 @@ const App: React.FC = () => {
           </div>
         </div>
 
-        {/* El contenedor ahora aprovecha mejor la altura */}
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-xl p-6 mb-4 border border-slate-200 relative overflow-hidden flex flex-col flex-1 min-h-0">
+        {/* El contenedor principal aprovecha el espacio hasta abajo */}
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-xl p-6 mb-2 border border-slate-200 relative overflow-hidden flex flex-col flex-1 min-h-0">
           <div className="absolute top-0 left-0 w-full h-1 bg-slate-100">
             <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${((currentQuestionIndex + (isAnswered ? 1 : 0)) / QUESTIONS_PER_PLAYER) * 100}%` }} />
           </div>
           
-          <div className="text-center my-6 shrink-0">
+          <div className="text-center my-4 md:my-8 shrink-0">
             <p className="text-[8px] font-black text-indigo-400 uppercase tracking-[0.3em] mb-1">Sinonimoa aukeratu</p>
-            <h3 className="text-3xl md:text-5xl font-black text-slate-900 break-words leading-tight uppercase tracking-tighter">{currentQuestion.wordData.hitza}</h3>
+            <h3 className="text-4xl md:text-6xl font-black text-slate-900 break-words leading-tight uppercase tracking-tighter">{currentQuestion.wordData.hitza}</h3>
           </div>
 
+          {/* Aukeren botoiak: text-2xl mugikorrerako eta text-4xl pantaila handiagoetarako */}
           <div className="grid grid-cols-1 gap-2.5 grow min-h-0">
             {currentQuestion.options.map((opt, i) => {
-              let buttonStyle = "w-full rounded-2xl border-2 font-black text-base md:text-xl transition-all duration-200 flex items-center justify-center text-center p-3 h-full ";
+              let buttonStyle = "w-full rounded-2xl border-2 font-black text-2xl md:text-4xl transition-all duration-200 flex items-center justify-center text-center p-3 h-full ";
               if (!isAnswered) buttonStyle += "bg-white border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 shadow-sm active:translate-y-1";
               else {
                 if (opt === currentQuestion.correctAnswer) buttonStyle += "bg-emerald-500 border-emerald-300 text-white shadow-md";
@@ -244,14 +245,14 @@ const App: React.FC = () => {
             })}
           </div>
 
-          <div className="mt-6 shrink-0 h-14 flex items-center justify-center">
+          <div className="mt-4 shrink-0 h-16 flex items-center justify-center">
             {isAnswered ? (
-               <button onClick={nextQuestion} className="w-full bg-indigo-950 text-white font-black h-full rounded-2xl shadow-lg active:scale-95 text-base uppercase tracking-widest">
+               <button onClick={nextQuestion} className="w-full bg-indigo-950 text-white font-black h-full rounded-2xl shadow-lg active:scale-95 text-xl uppercase tracking-widest">
                  {currentQuestionIndex < 9 ? "Hurrengoa" : "Bukatu"}
                </button>
             ) : (
-               <div className="flex items-center gap-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
-                 <span className="w-1.5 h-1.5 bg-indigo-300 rounded-full animate-ping"></span>
+               <div className="flex items-center gap-2 text-[10px] font-black text-slate-300 uppercase tracking-widest">
+                 <span className="w-2 h-2 bg-indigo-300 rounded-full animate-ping"></span>
                  Erantzunaren zain...
                </div>
             )}
@@ -269,7 +270,7 @@ const App: React.FC = () => {
 
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-indigo-950 overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col h-full max-h-[90dvh]">
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col h-full max-h-[92dvh]">
           <div className="mb-6 shrink-0 text-center">
             <h2 className="text-2xl font-black text-slate-900 uppercase">Sailkapena</h2>
             <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-1">{difficulty}. Maila</p>
@@ -317,7 +318,7 @@ const App: React.FC = () => {
   if (status === GameStatus.REVIEW) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-slate-900 overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full max-h-[90dvh]">
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full max-h-[92dvh]">
           <div className="flex justify-between items-center mb-6 shrink-0">
             <button onClick={() => setStatus(GameStatus.SUMMARY)} className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase active:scale-95">
               Atzera
