@@ -138,13 +138,13 @@ const App: React.FC = () => {
   if (status === GameStatus.SETUP) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center bg-gradient-to-br from-indigo-900 via-indigo-950 to-black overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white rounded-[2rem] shadow-2xl w-full max-w-xl flex flex-col h-full max-h-[85dvh] border-2 border-white/20 p-6">
-          <div className="text-center mb-6 shrink-0 pt-2">
-            <h1 className="text-2xl md:text-3xl font-black text-indigo-950 tracking-tighter uppercase leading-none">Sinonimoen Erronka</h1>
-            <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-widest">Konfiguratu jokoa</p>
+        <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-xl flex flex-col h-full max-h-[88dvh] border-2 border-white/20 p-6">
+          <div className="text-center mb-4 shrink-0">
+            <h1 className="text-2xl font-black text-indigo-950 tracking-tighter uppercase leading-none">Sinonimoak</h1>
+            <p className="text-[10px] font-bold text-slate-400 mt-1 uppercase tracking-widest">Konfigurazioa</p>
           </div>
           
-          <div className="flex flex-col gap-4 mb-4 shrink-0">
+          <div className="flex flex-col gap-3 mb-4 shrink-0">
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
                <label className="flex justify-between text-xs font-black text-indigo-900 uppercase mb-2">
                  Jokalariak: <span className="text-indigo-600 text-base">{numPlayers}</span>
@@ -153,7 +153,7 @@ const App: React.FC = () => {
             </div>
             
             <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-               <label className="block text-xs font-black text-indigo-900 uppercase mb-2">Zailtasun Maila</label>
+               <label className="block text-xs font-black text-indigo-900 uppercase mb-2">Zailtasuna</label>
                <div className="grid grid-cols-4 gap-2 h-10">
                  {([1, 2, 3, 4] as DifficultyLevel[]).map(d => (
                    <button key={d} onClick={() => setDifficulty(d)} className={`rounded-xl transition-all text-sm font-black ${difficulty === d ? 'bg-indigo-600 text-white shadow-md' : 'bg-white text-slate-400 border border-slate-100'}`}>
@@ -168,8 +168,8 @@ const App: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               {players.map((p) => (
                 <div key={p.id} className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 flex flex-col focus-within:ring-2 focus-within:ring-indigo-500 transition-all">
-                  <label className="text-[9px] font-black text-slate-400 uppercase mb-0.5">Jokalaria {p.id + 1}</label>
-                  <input type="text" value={p.name} onChange={(e) => handlePlayerNameChange(p.id, e.target.value)} className="p-0 bg-transparent border-none focus:ring-0 font-bold text-slate-800 text-sm" placeholder="Izena idatzi..." />
+                  <label className="text-[8px] font-black text-slate-400 uppercase mb-0.5">Jokalaria {p.id + 1}</label>
+                  <input type="text" value={p.name} onChange={(e) => handlePlayerNameChange(p.id, e.target.value)} className="p-0 bg-transparent border-none focus:ring-0 font-bold text-slate-800 text-sm" placeholder="Izena..." />
                 </div>
               ))}
             </div>
@@ -184,12 +184,11 @@ const App: React.FC = () => {
   if (status === GameStatus.INTERMISSION) {
     const player = players[currentPlayerIndex];
     return (
-      <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-slate-950 overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white p-8 rounded-[2.5rem] shadow-2xl text-center max-w-sm w-full border-b-[8px] border-indigo-600">
-          <div className="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-3xl font-black mx-auto mb-4 shadow-lg">{currentPlayerIndex + 1}</div>
-          <h2 className="text-2xl font-black text-slate-900 mb-1">{player.name}</h2>
-          <p className="text-[10px] text-indigo-400 font-black mb-8 uppercase tracking-[0.3em]">{difficulty}. Maila • 10 Galdera</p>
-          <button onClick={startPlayerTurn} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 px-6 rounded-2xl transition-all shadow-lg active:scale-95 text-lg uppercase tracking-widest">HASI TXANDA</button>
+      <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-indigo-950 overflow-hidden safe-pt safe-pb safe-px">
+        <div className="bg-white p-8 rounded-[3rem] shadow-2xl text-center max-w-sm w-full border-b-[10px] border-indigo-600 mx-4">
+          <div className="w-16 h-16 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-3xl font-black mx-auto mb-4 shadow-xl">{currentPlayerIndex + 1}</div>
+          <h2 className="text-2xl font-black text-slate-900 mb-6 tracking-tight">{player.name}</h2>
+          <button onClick={startPlayerTurn} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-xl transition-all shadow-lg active:scale-95 text-lg uppercase tracking-widest">HASI</button>
         </div>
       </div>
     );
@@ -202,24 +201,25 @@ const App: React.FC = () => {
     if (!currentQuestion) return null;
 
     return (
-      <div className="h-[100dvh] w-full flex flex-col items-center bg-slate-50 overflow-hidden safe-pt safe-pb safe-px">
-        {/* Barra superior con margen extra para evitar la zona de status */}
-        <div className="w-full max-w-2xl flex justify-between items-center mb-6 gap-2 shrink-0 px-2 pt-2">
+      <div className="h-[100dvh] w-full flex flex-col items-center bg-slate-100 overflow-hidden safe-pt safe-pb safe-px">
+        {/* Cabecera compacta: El botón Amaitu estará accesible y visible */}
+        <div className="w-full max-w-2xl flex justify-between items-center mb-4 gap-2 shrink-0 px-2">
           <div className="flex items-center space-x-2">
-             <div className="bg-indigo-600 text-white px-4 py-2 rounded-2xl text-[11px] font-black shadow-md uppercase tracking-tight">{currentPlayer.name}</div>
-             <div className="bg-white px-2.5 py-1.5 rounded-xl border border-slate-100 flex items-center gap-2 shadow-sm">
-               <span className="text-[9px] font-black text-rose-500 uppercase leading-none">+{currentTurnPenalties}s</span>
+             <div className="bg-indigo-600 text-white px-4 py-2 rounded-xl text-[11px] font-black shadow-md uppercase">{currentPlayer.name}</div>
+             <div className="bg-white px-2 py-1.5 rounded-lg border border-slate-200 flex items-center gap-1.5 shadow-sm">
+               <span className="text-[9px] font-black text-rose-500 uppercase">+{currentTurnPenalties}s</span>
              </div>
           </div>
           <div className="flex gap-2 items-center">
-            <div className="bg-white px-3 py-1.5 rounded-xl border border-slate-200 text-indigo-600 font-black text-xs shadow-sm">
+            <div className="bg-white px-3 py-1.5 rounded-lg border border-slate-200 text-indigo-600 font-black text-xs">
               {currentQuestionIndex + 1}/10
             </div>
-            <button onClick={() => setStatus(GameStatus.SUMMARY)} className="bg-rose-50 text-rose-700 font-black px-4 py-2 rounded-2xl text-[11px] uppercase shadow-sm active:scale-95 transition-transform">Amaitu</button>
+            <button onClick={() => setStatus(GameStatus.SUMMARY)} className="bg-rose-100 text-rose-700 font-black px-4 py-2 rounded-xl text-[11px] uppercase shadow-sm active:scale-95">Amaitu</button>
           </div>
         </div>
 
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-xl p-6 mb-4 border border-slate-100 relative overflow-hidden flex flex-col grow min-h-0">
+        {/* El contenedor ahora aprovecha mejor la altura */}
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-xl p-6 mb-4 border border-slate-200 relative overflow-hidden flex flex-col flex-1 min-h-0">
           <div className="absolute top-0 left-0 w-full h-1 bg-slate-100">
             <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${((currentQuestionIndex + (isAnswered ? 1 : 0)) / QUESTIONS_PER_PLAYER) * 100}%` }} />
           </div>
@@ -231,12 +231,12 @@ const App: React.FC = () => {
 
           <div className="grid grid-cols-1 gap-2.5 grow min-h-0">
             {currentQuestion.options.map((opt, i) => {
-              let buttonStyle = "w-full rounded-2xl border-2 font-black text-base md:text-xl transition-all duration-200 flex items-center justify-center text-center p-4 ";
-              if (!isAnswered) buttonStyle += "bg-white border-slate-50 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 shadow-sm active:translate-y-1";
+              let buttonStyle = "w-full rounded-2xl border-2 font-black text-base md:text-xl transition-all duration-200 flex items-center justify-center text-center p-3 h-full ";
+              if (!isAnswered) buttonStyle += "bg-white border-slate-100 hover:border-indigo-500 hover:bg-indigo-50 text-slate-700 shadow-sm active:translate-y-1";
               else {
-                if (opt === currentQuestion.correctAnswer) buttonStyle += "bg-emerald-500 border-emerald-300 text-white shadow-lg";
+                if (opt === currentQuestion.correctAnswer) buttonStyle += "bg-emerald-500 border-emerald-300 text-white shadow-md";
                 else if (opt === selectedAnswer) buttonStyle += "bg-rose-500 border-rose-300 text-white opacity-90";
-                else buttonStyle += "bg-slate-50 border-slate-50 text-slate-300 grayscale opacity-40";
+                else buttonStyle += "bg-slate-50 border-slate-50 text-slate-300 opacity-40";
               }
               return (
                 <button key={i} disabled={isAnswered} onClick={() => handleAnswer(opt)} className={buttonStyle}>{opt}</button>
@@ -246,12 +246,12 @@ const App: React.FC = () => {
 
           <div className="mt-6 shrink-0 h-14 flex items-center justify-center">
             {isAnswered ? (
-               <button onClick={nextQuestion} className="w-full bg-indigo-950 text-white font-black py-3.5 rounded-2xl shadow-lg active:scale-95 text-base uppercase tracking-widest">
-                 {currentQuestionIndex < 9 ? "Hurrengoa" : "Txanda bukatu"}
+               <button onClick={nextQuestion} className="w-full bg-indigo-950 text-white font-black h-full rounded-2xl shadow-lg active:scale-95 text-base uppercase tracking-widest">
+                 {currentQuestionIndex < 9 ? "Hurrengoa" : "Bukatu"}
                </button>
             ) : (
                <div className="flex items-center gap-2 text-[9px] font-black text-slate-300 uppercase tracking-widest">
-                 <span className="w-1.5 h-1.5 bg-indigo-200 rounded-full animate-pulse"></span>
+                 <span className="w-1.5 h-1.5 bg-indigo-300 rounded-full animate-ping"></span>
                  Erantzunaren zain...
                </div>
             )}
@@ -269,32 +269,32 @@ const App: React.FC = () => {
 
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-indigo-950 overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col h-full max-h-[88dvh] border-t-4 border-indigo-600">
-          <div className="mb-6 shrink-0 text-center pt-2">
-            <h2 className="text-2xl md:text-3xl font-black text-slate-900 uppercase">Sailkapena</h2>
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 md:p-8 flex flex-col h-full max-h-[90dvh]">
+          <div className="mb-6 shrink-0 text-center">
+            <h2 className="text-2xl font-black text-slate-900 uppercase">Sailkapena</h2>
             <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mt-1">{difficulty}. Maila</p>
           </div>
           
-          <div className="grow overflow-hidden rounded-2xl border border-slate-100 shadow-inner bg-slate-50 mb-6 flex flex-col">
-            <div className="overflow-y-auto custom-scrollbar grow">
+          <div className="grow overflow-hidden rounded-2xl border border-slate-200 shadow-inner bg-slate-50 mb-6 flex flex-col">
+            <div className="overflow-y-auto custom-scrollbar grow p-1">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 bg-slate-100 z-10">
                   <tr>
-                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase">P.</th>
-                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase">Jokalaria</th>
+                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase">#</th>
+                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase">Nor</th>
                     <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase text-center">Pts</th>
-                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase text-right">Denb.</th>
+                    <th className="px-4 py-3 text-[9px] font-black text-slate-500 uppercase text-right">S.</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-200 bg-white">
+                <tbody className="divide-y divide-slate-100 bg-white">
                   {sortedPlayers.map((p, idx) => (
                     <tr key={p.id} className={idx === 0 ? "bg-amber-50" : ""}>
-                      <td className="px-4 py-3.5 font-black text-lg">{idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}</td>
-                      <td className="px-4 py-3.5 font-bold text-slate-800 text-xs uppercase tracking-tight">{p.name}</td>
-                      <td className="px-4 py-3.5 text-center">
+                      <td className="px-4 py-4 font-black text-lg">{idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : `${idx + 1}.`}</td>
+                      <td className="px-4 py-4 font-black text-slate-800 text-xs uppercase">{p.name}</td>
+                      <td className="px-4 py-4 text-center">
                         <span className="bg-indigo-600 text-white px-2 py-0.5 rounded-lg font-black text-[10px]">{p.score}</span>
                       </td>
-                      <td className="px-4 py-3.5 text-right font-mono text-slate-500 text-[10px]">{p.time.toFixed(1)}s</td>
+                      <td className="px-4 py-4 text-right font-mono text-slate-500 text-[10px]">{p.time.toFixed(1)}s</td>
                     </tr>
                   ))}
                 </tbody>
@@ -307,7 +307,7 @@ const App: React.FC = () => {
               <button onClick={() => { setPlayers(players.map(p => ({...p, score: 0, time: 0}))); startNewGame(); }} className="bg-indigo-600 text-white font-black py-4 rounded-xl shadow-md text-xs uppercase tracking-widest active:scale-95">BERRIRO</button>
               <button onClick={() => setStatus(GameStatus.REVIEW)} className="bg-white text-indigo-600 font-black py-4 rounded-xl shadow-sm text-xs uppercase tracking-widest border border-indigo-100 active:scale-95">HITZAK</button>
             </div>
-            <button onClick={() => setStatus(GameStatus.SETUP)} className="w-full bg-slate-100 text-slate-500 font-black py-3 rounded-xl text-[10px] uppercase tracking-widest mt-2">HASIERA</button>
+            <button onClick={() => setStatus(GameStatus.SETUP)} className="w-full bg-slate-100 text-slate-500 font-black py-3 rounded-xl text-[10px] uppercase active:scale-95">HASIERA</button>
           </div>
         </div>
       </div>
@@ -317,28 +317,28 @@ const App: React.FC = () => {
   if (status === GameStatus.REVIEW) {
     return (
       <div className="h-[100dvh] w-full flex flex-col items-center justify-center bg-slate-900 overflow-hidden safe-pt safe-pb safe-px">
-        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full max-h-[88dvh] border-t-4 border-indigo-600">
-          <div className="flex justify-between items-center mb-6 shrink-0 pt-2">
-            <button onClick={() => setStatus(GameStatus.SUMMARY)} className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase active:scale-95 transition-transform">
+        <div className="bg-white w-full max-w-2xl rounded-[2.5rem] shadow-2xl p-6 flex flex-col h-full max-h-[90dvh]">
+          <div className="flex justify-between items-center mb-6 shrink-0">
+            <button onClick={() => setStatus(GameStatus.SUMMARY)} className="bg-slate-100 text-slate-600 px-4 py-2 rounded-xl font-black text-[10px] uppercase active:scale-95">
               Atzera
             </button>
-            <h2 className="text-sm md:text-lg font-black text-indigo-950 uppercase">Agertutako Hitzak</h2>
+            <h2 className="text-sm font-black text-indigo-950 uppercase">Hiztegia</h2>
             <div className="w-12"></div>
           </div>
 
-          <div className="grow overflow-y-auto pr-1 custom-scrollbar min-h-0 mb-6">
+          <div className="grow overflow-y-auto pr-1 custom-scrollbar min-h-0 mb-6 bg-slate-50 rounded-2xl p-2 border border-slate-100">
             <div className="grid grid-cols-1 gap-2">
               {playedWordData.map((data, idx) => (
-                <div key={idx} className="bg-slate-50 p-4 rounded-2xl border border-indigo-50 flex flex-col gap-2">
+                <div key={idx} className="bg-white p-4 rounded-xl border border-indigo-50 flex flex-col gap-2 shadow-sm">
                   <div className="flex items-center gap-2">
-                    <span className="text-[8px] font-black bg-white text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-50">#{idx + 1}</span>
-                    <a href={`https://hiztegiak.elhuyar.eus/eu/${data.hitza}`} target="_blank" rel="noopener noreferrer" className="text-indigo-950 font-black text-sm uppercase hover:underline decoration-2">
+                    <span className="text-[10px] font-black bg-indigo-50 text-indigo-400 px-1.5 py-0.5 rounded border border-indigo-100">#{idx + 1}</span>
+                    <a href={`https://hiztegiak.elhuyar.eus/eu/${data.hitza}`} target="_blank" rel="noopener noreferrer" className="text-indigo-950 font-black text-sm uppercase">
                       {data.hitza}
                     </a>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {data.sinonimoak.map((sin, sIdx) => (
-                      <span key={sIdx} className="bg-white text-indigo-600 px-2.5 py-1.5 rounded-xl font-bold text-[10px] border border-indigo-100 shadow-sm">
+                      <span key={sIdx} className="bg-indigo-600/5 text-indigo-600 px-2 py-1 rounded-lg font-bold text-[10px] border border-indigo-600/10">
                         {sin}
                       </span>
                     ))}
@@ -348,7 +348,7 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          <button onClick={() => setStatus(GameStatus.SUMMARY)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-2xl shadow-lg uppercase tracking-widest text-xs shrink-0 active:scale-95 transition-transform mb-2">Itzuli</button>
+          <button onClick={() => setStatus(GameStatus.SUMMARY)} className="w-full bg-indigo-600 text-white font-black py-4 rounded-xl shadow-lg uppercase tracking-widest text-xs shrink-0 active:scale-95">ITXI</button>
         </div>
       </div>
     );
