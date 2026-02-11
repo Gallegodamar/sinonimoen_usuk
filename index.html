@@ -20,17 +20,30 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
+      :root {
+        --sat: env(safe-area-inset-top);
+        --sab: env(safe-area-inset-bottom);
+        --sal: env(safe-area-inset-left);
+        --sar: env(safe-area-inset-right);
+      }
       body {
         font-family: 'Inter', sans-serif;
         background-color: #f8fafc;
         margin: 0;
         padding: 0;
-        height: 100vh;
+        height: 100dvh;
         width: 100vw;
         overflow: hidden;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
+      /* Incrementamos el margen superior base a 2.5rem (aprox 40px) más el valor del inset del sistema */
+      .safe-pt { padding-top: calc(2.5rem + var(--sat)); }
+      .safe-pb { padding-bottom: calc(1.5rem + var(--sab)); }
+      .safe-px { padding-left: calc(1.2rem + var(--sal)); padding-right: calc(1.2rem + var(--sar)); }
+      
       .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
+        width: 4px;
       }
       .custom-scrollbar::-webkit-scrollbar-track {
         background: transparent;
@@ -41,11 +54,13 @@
       }
       input[type=range]::-webkit-slider-thumb {
         -webkit-appearance: none;
-        height: 20px;
-        width: 20px;
+        height: 24px;
+        width: 24px;
         border-radius: 50%;
         background: #4f46e5;
         cursor: pointer;
+        border: 4px solid white;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
       }
     </style>
     <script type="importmap">
@@ -57,7 +72,6 @@
       }
     }
     </script>
-    <!-- Entrada principal de la aplicación -->
     <script type="module" src="index.tsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
@@ -68,8 +82,10 @@
         });
       }
     </script>
-  </head>
+  <link rel="stylesheet" href="/index.css">
+</head>
   <body>
     <div id="root"></div>
-  </body>
+  <script type="module" src="/index.tsx"></script>
+</body>
 </html>
